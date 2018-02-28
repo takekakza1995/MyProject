@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "875500239695",
+    "firebase_url": "https://adroit-terminus-172607.firebaseio.com",
+    "project_id": "adroit-terminus-172607",
+    "storage_bucket": "adroit-terminus-172607.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875500239695:android:1d9dbe9487440515",
+        "android_client_info": {
+          "package_name": "com.example.takethraithip.myproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "875500239695-v2k8h42pv69gjpj1744v606pjvsat4bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.takethraithip.myproject",
+            "certificate_hash": "e8afbddae204567e196faa3e27da31483fb92f67"
+          }
+        },
+        {
+          "client_id": "875500239695-1ipbbqh0te66jd5sundjs8tgmfrtlrl0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQFpvMS9N93Q04O61oASTzCd1ygdM65dM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "875500239695-1ipbbqh0te66jd5sundjs8tgmfrtlrl0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
