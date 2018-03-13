@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageReference;
@@ -47,6 +48,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            Intent gotoLogin = new Intent(MainActivity.this,LoginFirebaseUI.class);
+            startActivity(gotoLogin);
+            finish();
+        } else {
+            // not signed in
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -82,7 +93,7 @@ public class MainActivity extends AppCompatActivity
             Picasso.with(this).load(url.toString()).into(navProfilePic);
 
             /**push**/
-            /*
+
             firebaseFirestore = FirebaseFirestore.getInstance();
             String userName = name;
             String userMail = mail;
@@ -104,7 +115,7 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this,"Error : " + error,Toast.LENGTH_SHORT).show();
                 }
             });
-            */
+
             /**push**/
 
         }

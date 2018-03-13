@@ -21,6 +21,9 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FacebookAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -37,9 +40,62 @@ public class LoginActivity extends AppCompatActivity {
     CallbackManager callbackManager;
 
     String picUrl,userName,userEmail;
-    ProgressDialog mdialog;
+
+    FirebaseAuth mAuth;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
 
+        //mAuth = FirebaseAuth.getInstance();
+
+           callbackManager = CallbackManager.Factory.create();
+           LoginButton loginButton = (LoginButton) findViewById(R.id.loginBtn);
+           loginButton.setReadPermissions(Arrays.asList("public_profile", "email"));
+
+           loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+               @Override
+               public void onSuccess(LoginResult loginResult) {
+                   //handleFacebookAccessToken(loginResult.getAccessToken());
+                   String accessToken = loginResult.getAccessToken().getToken();
+
+                   GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                       @Override
+                       public void onCompleted(JSONObject object, GraphResponse response) {
+
+                           Log.d("response", response.toString());
+                           getData(object);
+
+                           Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                           main.putExtra("name", userName.toString());
+                           main.putExtra("email", userEmail.toString());
+                           main.putExtra("pic", picUrl.toString());
+                           startActivity(main);
+                           finish();
+                       }
+                   });
+
+                   //เรียก graph
+                   Bundle parameters = new Bundle();
+                   parameters.putString("fields", "email,name");
+                   request.setParameters(parameters);
+                   request.executeAsync();
+               }
+
+               @Override
+               public void onCancel() {
+
+               }
+
+               @Override
+               public void onError(FacebookException error) {
+
+               }
+           });
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -47,70 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode,resultCode,data);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
-        callbackManager = CallbackManager.Factory.create();
-
-
-
-        LoginButton loginButton = (LoginButton) findViewById(R.id.loginBtn);
-        loginButton.setReadPermissions(Arrays.asList("public_profile","email"));
-
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                mdialog = new ProgressDialog(LoginActivity.this);
-                mdialog.setMessage("Loading...");
-                mdialog.show();
-
-                String accessToken = loginResult.getAccessToken().getToken();
-
-                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        mdialog.dismiss();
-                        Log.d("response",response.toString());
-                        getData(object);
-
-                        Intent main = new Intent(LoginActivity.this,MainActivity.class);
-                        main.putExtra("name",userName.toString());
-                        main.putExtra("email",userEmail.toString());
-                        main.putExtra("pic",picUrl.toString());
-                        startActivity(main);
-                        finish();
-                    }
-                });
-
-                //เรียก graph
-                Bundle parameters = new Bundle();
-                parameters.putString("fields","email,name");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-
-            }
-        });
-        //login แล้ว
-        if (AccessToken.getCurrentAccessToken() != null)
-        {
-            Toast.makeText(LoginActivity.this,"Already Logged in",Toast.LENGTH_SHORT).show();
-           /* Intent alrLog = new Intent(LoginActivity.this,MainActivity.class);
-            startActivity(alrLog);
-            finish();
-            */
-        }
-    }
 
     private void getData(JSONObject object) {
         try{

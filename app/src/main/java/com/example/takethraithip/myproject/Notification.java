@@ -38,7 +38,7 @@ public class Notification extends AppCompatActivity
 
 
     String sub = "";
-    Button addNoti;
+    Button addNoti,backNoti;
     int day , month , year , hour , minute;
     int dayFinal , mountFinal , yearFinal , hourFinal, minuteFinal;
     AlarmManager alarmManager;
@@ -116,7 +116,17 @@ public class Notification extends AppCompatActivity
         });
 
         /**AddButton**/
-
+        /**backBtn**/
+        backNoti = (Button)findViewById(R.id.notiBack);
+        backNoti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Notification.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        /**Backbtn**/
 
 
     }
