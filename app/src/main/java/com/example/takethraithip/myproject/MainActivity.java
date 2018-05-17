@@ -1,6 +1,7 @@
 package com.example.takethraithip.myproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -39,8 +40,8 @@ public class MainActivity extends AppCompatActivity
     TextView navUserName,navUserMail;
     ImageView navProfilePic;
     FirebaseFirestore firebaseFirestore;
-
-
+    SharedPreferences sharedPreferences;
+    FirebaseAuth mAuth;
 
 
 
@@ -49,14 +50,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            Intent gotoLogin = new Intent(MainActivity.this,LoginFirebaseUI.class);
-            startActivity(gotoLogin);
-            finish();
-        } else {
-            // not signed in
-        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -78,69 +71,79 @@ public class MainActivity extends AppCompatActivity
         navProfilePic = (ImageView) navHead.findViewById(R.id.profile_picture);
 
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        String name1 = sharedPreferences.getString("name","not Found");
+        String mail1 = sharedPreferences.getString("email","not found");
+        String url1 = sharedPreferences.getString("pic","notfound");
+
+      /*  Bundle bundle = getIntent().getExtras();
+        if (bundle != null)
             String name = bundle.getString("name");
             String mail = bundle.getString("email");
             String url = bundle.getString("pic");
 
-        /*String userName = intent.getStringExtra("name");
+        String userName = intent.getStringExtra("name");
         String email = intent.getStringExtra("email");
         String imgUri = intent.getStringExtra("pic");
 */
-            navUserName.setText(name);
-            navUserMail.setText(mail);
-            Picasso.with(this).load(url.toString()).into(navProfilePic);
+            navUserName.setText(name1);
+            navUserMail.setText(mail1);
+            Picasso.with(MainActivity.this).load(url1.toString()).into(navProfilePic);
 
-            /**push**/
-
-            firebaseFirestore = FirebaseFirestore.getInstance();
-            String userName = name;
-            String userMail = mail;
-            String userPic = url;
-
-            Map<String,String> userMap = new HashMap<>();
-            userMap.put("name",userName);
-            userMap.put("email",userMail);
-            userMap.put("imgLink",userPic);
-            firebaseFirestore.collection("user").add(userMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            ImageView notiIMG = (ImageView) findViewById(R.id.imageView);
+            notiIMG.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Toast.makeText(MainActivity.this,"Added Success!",Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    String error = e.getMessage();
-                    Toast.makeText(MainActivity.this,"Error : " + error,Toast.LENGTH_SHORT).show();
+                public void onClick(View view) {
+                    Intent intent = new Intent(MainActivity.this,Notification.class);
+                    startActivity(intent);
+                    finish();
                 }
             });
-
-            /**push**/
-
-        }
 
 
 
 /****Nav***/
 
 
+        /**push**/
+        /*
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
+        Map<String,String> userMap = new HashMap<>();
+        userMap.put("name",name1);
+        userMap.put("email",mail1);
+        userMap.put("imgLink",url1);
+        firebaseFirestore.collection("user").add(userMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Toast.makeText(MainActivity.this,"Added Success!",Toast.LENGTH_SHORT).show();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                String error = e.getMessage();
+                Toast.makeText(MainActivity.this,"Error : " + error,Toast.LENGTH_SHORT).show();
+            }
+        });
+*/
+        /**push**/
 
 /****logout***/
-
+/*
             Button logoutButton = (Button) findViewById(R.id.logoutBtn);
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    FirebaseAuth.getInstance().signOut();
+                    getApplicationContext().getSharedPreferences("userInfo", 0).edit().clear().commit();
                     LoginManager.getInstance().logOut();
                     Intent login = new Intent(MainActivity.this,LoginActivity.class);
                     startActivity(login);
                     finish();
 
                 }
-            });
+            });*/
 /**logout**/
 
 
@@ -148,6 +151,7 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -208,13 +212,18 @@ public class MainActivity extends AppCompatActivity
                 startActivity(plantIntent);
                 finish();
                 break;
-           /* case R.id.nav_setting:
+           /*case R.id.nav_setting:
                 Intent settingIntent = new Intent(MainActivity.this,Notification.class);
                 startActivity(settingIntent);
-                break;
+                break;*/
             case R.id.nav_logout:
+                FirebaseAuth.getInstance().signOut();
+                getApplicationContext().getSharedPreferences("userInfo", 0).edit().clear().commit();
+                LoginManager.getInstance().logOut();
+                Intent logOut = new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(logOut);
 
-                break;    */
+                break;
 
         }
 

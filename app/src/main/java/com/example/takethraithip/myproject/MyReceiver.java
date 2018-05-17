@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -18,18 +19,17 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         //Toast.makeText(context, "Wake Up!", Toast.LENGTH_LONG).show();
-        Intent intent1 = new Intent(context, UserNoti.class);
-
-        //context.startActivity(intent1);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                0, intent1 , PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(context, Notification.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(),"")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(),"channel_id")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("My Notification")
                 .setContentText("พักสายตาเถอะนะคนดี!!")
                 .setAutoCancel(true)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentIntent(pendingIntent);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(0, builder.build());

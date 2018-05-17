@@ -7,11 +7,14 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,12 +28,30 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Notification extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -46,12 +67,144 @@ public class Notification extends AppCompatActivity
     private ListView lv1;
     private ArrayAdapter<String> addAdapter;
     private ArrayList<String> addItem;
+    SharedPreferences sharedPreferences;
+    TextView navUserName,navUserMail;
+    ImageView navProfilePic;
+    FirebaseFirestore firebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
+
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String userName = sharedPreferences.getString("name","name notFound");
+        final String userMail = sharedPreferences.getString("email","email notFound");
+        String userPic = sharedPreferences.getString("pic","Pic notFound");
+
+        Log.d("FCM_NOTI","Token : " + FirebaseInstanceId.getInstance().getToken());
         /**nav**/
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            String getNo = bundle.getString("Noti");
+            Toast.makeText(this,getNo,Toast.LENGTH_LONG).show();
+
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setMessage("Are you did it?");
+            builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // update to fire store
+
+                    DocumentReference statisticUD = firebaseFirestore.collection("statistic")
+                            .document(userMail);
+
+                    statisticUD
+                            .update("water", "10")
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("Result", "DocumentSnapshot successfully updated!");
+                                    Toast.makeText(Notification.this,"Success",Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("Result", "Error updating document", e);
+                                    Toast.makeText(Notification.this,"Failed",Toast.LENGTH_LONG).show();
+                                }
+                            });
+
+                }
+            });
+            builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Do something
+                    dialog.cancel();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+/*****************/
+/*
+            firebaseFirestore.collection("statistic")
+                    .document(userMail)
+            .update(
+                    "water","10"
+            );
+
+            firebaseFirestore.collection("notiresult")
+                    .document(userMail)
+                    .update(
+                            "result", "1",
+                            "type","10"
+
+                    );
+
+
+
+
+            CollectionReference statRef = firebaseFirestore.collection("statistic");
+
+            DocumentReference statisticUD = firebaseFirestore.collection("statistic")
+                                            .document(userMail);
+
+            statisticUD
+                    .update("water", "10")
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Result", "DocumentSnapshot successfully updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Result", "Error updating document", e);
+                        }
+                    });
+*/
+
+/****************/
+
+
+            /****push**/
+/*
+            firebaseFirestore = FirebaseFirestore.getInstance();
+
+            Map<String,String> userMap = new HashMap<>();
+            userMap.put("email","s@mail.com");
+            userMap.put("result","100");
+            userMap.put("type","0");
+            userMap.put("type","0");
+            userMap.put("type","0");
+            firebaseFirestore.collection("statistic").add(userMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    Toast.makeText(Notification.this,"Added Success!",Toast.LENGTH_SHORT).show();
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    String error = e.getMessage();
+                    Toast.makeText(Notification.this,"Error : " + error,Toast.LENGTH_SHORT).show();
+                }
+            });
+*/
+            /***push***/
+            //(if get = notied)
+
+        }
+
+
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -64,6 +217,17 @@ public class Notification extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //add nav
+        View navHead = navigationView.getHeaderView(0);
+        navUserName = (TextView) navHead.findViewById(R.id.userName) ;
+        navUserMail = (TextView) navHead.findViewById(R.id.email);
+        navProfilePic = (ImageView) navHead.findViewById(R.id.profile_picture);
+
+        navUserName.setText(userName);
+        navUserMail.setText(userMail);
+        Picasso.with(Notification.this).load(userPic.toString()).into(navProfilePic);
+
         /**nav**/
 
         /**AddButton**/
@@ -194,9 +358,16 @@ public class Notification extends AppCompatActivity
                 Intent settingIntent = new Intent(MainActivity.this,Notification.class);
                 startActivity(settingIntent);
                 break;
+                */
             case R.id.nav_logout:
 
-                break;    */
+                FirebaseAuth.getInstance().signOut();
+                LoginManager.getInstance().logOut();
+                getApplicationContext().getSharedPreferences("userInfo", 0).edit().clear().commit();
+
+                Intent logOut = new Intent(Notification.this,LoginActivity.class);
+                startActivity(logOut);
+
 
         }
 

@@ -1,9 +1,11 @@
 package com.example.takethraithip.myproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +15,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.AxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 public class Statistic extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    TextView navUserName,navUserMail;
+    ImageView navProfilePic;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +53,88 @@ public class Statistic extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        /*******nav********/
+        View navHead = navigationView.getHeaderView(0);
+        navUserName = (TextView) navHead.findViewById(R.id.userName) ;
+        navUserMail = (TextView) navHead.findViewById(R.id.email);
+        navProfilePic = (ImageView) navHead.findViewById(R.id.profile_picture);
+
+
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        String name1 = sharedPreferences.getString("name","not Found");
+        String mail1 = sharedPreferences.getString("email","not found");
+        String url1 = sharedPreferences.getString("pic","notfound");
+
+      /*  Bundle bundle = getIntent().getExtras();
+        if (bundle != null)
+            String name = bundle.getString("name");
+            String mail = bundle.getString("email");
+            String url = bundle.getString("pic");
+
+        String userName = intent.getStringExtra("name");
+        String email = intent.getStringExtra("email");
+        String imgUri = intent.getStringExtra("pic");
+*/
+        navUserName.setText(name1);
+        navUserMail.setText(mail1);
+        Picasso.with(Statistic.this).load(url1.toString()).into(navProfilePic);
+
+        /*******nav******/
+
+/******chart******/
+        BarChart chart = (BarChart) findViewById(R.id.bar_chart);
+        final ArrayList<Chart> listChartdata = Chart.getSampleChartData(30);
+
+
+        final ArrayList<BarEntry> entries = new ArrayList<>();
+        int index = 0;
+        for (Chart chartData : listChartdata) {
+            entries.add(new BarEntry(index, chartData.getWater()));
+            index++;
+        }
+
+        BarDataSet dataset = new BarDataSet(entries, "#");
+        ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
+        dataSets.add(dataset);
+
+        BarData data = new BarData(dataSets);
+        dataset.setValueTextSize(8);
+        dataset.setColors(ColorTemplate.COLORFUL_COLORS); // set the color
+
+        chart.setData(data);
+
+        chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        chart.getXAxis().setLabelRotationAngle(80);
+
+
+        final XAxis xAxis = chart.getXAxis();
+        xAxis.setTextSize(12);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setValueFormatter(new AxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                Log.d("benznest", "value = " + value);
+                if (value < 0 || value >= listChartdata.size()) {
+                    return "";
+                }
+                return String.valueOf(listChartdata.get((int) value).getWater());
+            }
+
+            @Override
+            public int getDecimalDigits() {
+                return 0;
+            }
+        });
+
+
+
+        /************chart*********/
+
     }
+
+
 
     @Override
     public void onBackPressed() {
