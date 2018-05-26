@@ -2,6 +2,7 @@ package com.example.takethraithip.myproject;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,12 +40,8 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     Toolbar toolbar=null;
     TextView navUserName,navUserMail;
-    ImageView navProfilePic;
-    FirebaseFirestore firebaseFirestore;
+    ImageView navProfilePic,notiView,plantView,statView;
     SharedPreferences sharedPreferences;
-    FirebaseAuth mAuth;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,58 +74,46 @@ public class MainActivity extends AppCompatActivity
         String mail1 = sharedPreferences.getString("email","not found");
         String url1 = sharedPreferences.getString("pic","notfound");
 
-      /*  Bundle bundle = getIntent().getExtras();
-        if (bundle != null)
-            String name = bundle.getString("name");
-            String mail = bundle.getString("email");
-            String url = bundle.getString("pic");
-
-        String userName = intent.getStringExtra("name");
-        String email = intent.getStringExtra("email");
-        String imgUri = intent.getStringExtra("pic");
-*/
             navUserName.setText(name1);
             navUserMail.setText(mail1);
             Picasso.with(MainActivity.this).load(url1.toString()).into(navProfilePic);
 
-            ImageView notiIMG = (ImageView) findViewById(R.id.imageView);
-            notiIMG.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(MainActivity.this,Notification.class);
-                    startActivity(intent);
-                    finish();
-                }
-            });
-
-
-
 /****Nav***/
 
+        /********Click*******/
+        notiView = (ImageView) findViewById(R.id.notiView);
+        plantView = (ImageView) findViewById(R.id.plantView);
+        statView =(ImageView) findViewById(R.id.statView);
 
-        /**push**/
-        /*
-        firebaseFirestore = FirebaseFirestore.getInstance();
-
-        Map<String,String> userMap = new HashMap<>();
-        userMap.put("name",name1);
-        userMap.put("email",mail1);
-        userMap.put("imgLink",url1);
-        firebaseFirestore.collection("user").add(userMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        notiView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Toast.makeText(MainActivity.this,"Added Success!",Toast.LENGTH_SHORT).show();
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                String error = e.getMessage();
-                Toast.makeText(MainActivity.this,"Error : " + error,Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,Notification.class);
+                startActivity(intent);
+                finish();
             }
         });
-*/
-        /**push**/
+
+        plantView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,Plant.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        statView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,Statistic.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        /*******Click********/
+
+
 
 /****logout***/
 /*

@@ -10,9 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -36,21 +37,26 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Document;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Notification extends AppCompatActivity
@@ -64,32 +70,47 @@ public class Notification extends AppCompatActivity
     int dayFinal , mountFinal , yearFinal , hourFinal, minuteFinal;
     AlarmManager alarmManager;
     PendingIntent alarmIntent;
-    private ListView lv1;
-    private ArrayAdapter<String> addAdapter;
-    private ArrayList<String> addItem;
+
+    ListView lv1;
+    ArrayAdapter<String> addAdapter;
+
+    List<notiTyping> timeList = new ArrayList<>();
+
     SharedPreferences sharedPreferences;
     TextView navUserName,navUserMail;
     ImageView navProfilePic;
-    FirebaseFirestore firebaseFirestore;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private List<notiTyping> notiTypingList = new ArrayList<notiTyping>();
+    private RecyclerView recyclerView;
+    private notiAdapter notiAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
 
-        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("userInfo", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        String userName = sharedPreferences.getString("name","name notFound");
-        final String userMail = sharedPreferences.getString("email","email notFound");
-        String userPic = sharedPreferences.getString("pic","Pic notFound");
+        String userName = sharedPreferences.getString("name", "name notFound");
+        final String userMail = sharedPreferences.getString("email", "email notFound");
+        String userPic = sharedPreferences.getString("pic", "Pic notFound");
 
-        Log.d("FCM_NOTI","Token : " + FirebaseInstanceId.getInstance().getToken());
+
+
+
+        Log.d("FCM_NOTI", "Token : " + FirebaseInstanceId.getInstance().getToken());
         /**nav**/
 
+        Log.d("mail", "TAKE .." + userMail);
+
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null){
-            String getNo = bundle.getString("Noti");
-            Toast.makeText(this,getNo,Toast.LENGTH_LONG).show();
+        if (bundle != null) {
+            try{
+            final String getNo = bundle.getString("Noti");
+
+            //Toast.makeText(this, getNo, Toast.LENGTH_SHORT).show();
+            final int notiKey = Integer.parseInt(getNo);
 
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -99,27 +120,235 @@ public class Notification extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int id) {
                     // update to fire store
 
-                    DocumentReference statisticUD = firebaseFirestore.collection("statistic")
-                            .document(userMail);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    final String strDate = mdformat.format(calendar.getTime());
 
-                    statisticUD
-                            .update("water", "10")
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d("Result", "DocumentSnapshot successfully updated!");
-                                    Toast.makeText(Notification.this,"Success",Toast.LENGTH_LONG).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("Result", "Error updating document", e);
-                                    Toast.makeText(Notification.this,"Failed",Toast.LENGTH_LONG).show();
-                                }
-                            });
+                    final DocumentReference statisticUD = db.collection("statistic").document(userMail);
+                    final DocumentReference plantData = db.collection("plant").document(userMail);
+                    final CollectionReference userRef = db.collection("users").document(userMail).collection("notiResult");
+                    if (notiKey == 1){
+                            //update water
+                        /*********get**********/
+                        statisticUD.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        Log.d("Data789", "DocumentSnapshot data: " + document.getData().get("water"));
+                                        String getData = (String) document.getData().get("water"); // get data from FS
+                                        int dataUD = Integer.parseInt(getData);
+                                        Toast.makeText(Notification.this,"Water Data = " + getData,Toast.LENGTH_SHORT).show();
+                                        /********Update********/
+                                        statisticUD
+                                                .update("water", String.valueOf(dataUD + 1))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("Result", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("Result", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
 
-                }
+                                        plantData
+                                                .update("water", String.valueOf(dataUD + 5))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("PlantData", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                        /********Update********/
+
+                                        /***********time ************/
+                                        userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    Map<String,String> userData = new HashMap<>();
+                                                    userData.put("notiType", String.valueOf(notiKey));
+                                                    userData.put("result", String.valueOf(true));
+                                                    userRef.document(strDate).set(userData);
+                                                }
+                                            }
+                                        });
+                                        /***********time ************/
+                                    } else {
+                                        Log.d("Data789", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Data789", "get failed with ", task.getException());
+                                }
+                            }
+                        });
+                        /*********get*********/
+                        //end of => if(notiKey == 1)
+                    }else if (notiKey == 2){
+                        //update light
+                        /*********get**********/
+                        statisticUD.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        Log.d("Data789", "DocumentSnapshot data: " + document.getData().get("light"));
+                                        String getData = (String) document.getData().get("light");
+                                        int dataUD = Integer.parseInt(getData);
+                                        Toast.makeText(Notification.this,"Light Data = " + getData,Toast.LENGTH_SHORT).show();
+                                        /********Update********/
+                                        statisticUD
+                                                .update("light", String.valueOf(dataUD + 1))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("Result", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("Result", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                        plantData
+                                                .update("light", String.valueOf(dataUD + 5))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("PlantData", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                        /********Update********/
+
+                                        /***********time ************/
+                                        userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    Map<String,String> userData = new HashMap<>();
+                                                    userData.put("notiType", String.valueOf(notiKey));
+                                                    userData.put("result", String.valueOf(true));
+                                                    userRef.document(strDate).set(userData);
+                                                }
+                                            }
+                                        });
+                                        /***********time ************/
+
+
+                                    } else {
+                                        Log.d("Data789", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Data789", "get failed with ", task.getException());
+                                }
+                            }
+                        });
+                        /*********get*********/
+                        //end of if(notiKey == 2)
+                    }else if (notiKey == 3){
+                        /*********get**********/
+                        statisticUD.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        Log.d("Data789", "DocumentSnapshot data: " + document.getData().get("behavior"));
+                                        String getData = (String) document.getData().get("behavior");
+                                        int dataUD = Integer.parseInt(getData);
+                                        Toast.makeText(Notification.this,"Behavior Data = " + getData,Toast.LENGTH_SHORT).show();
+                                        /********Update********/
+                                        statisticUD
+                                                .update("behavior", String.valueOf(dataUD + 1))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("Result", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("Result", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                        plantData
+                                                .update("fertilizer", String.valueOf(dataUD + 5))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                                        Toast.makeText(Notification.this, "Success", Toast.LENGTH_LONG).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("PlantData", "Error updating document", e);
+                                                        Toast.makeText(Notification.this, "Failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                        /********Update********/
+
+                                        /***********time ************/
+                                        userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    Map<String,String> userData = new HashMap<>();
+                                                    userData.put("notiType", String.valueOf(notiKey));
+                                                    userData.put("result", String.valueOf(true));
+                                                    userRef.document(strDate).set(userData);
+                                                }
+                                            }
+                                        });
+                                        /***********time ************/
+                                    } else {
+                                        Log.d("Data789", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Data789", "get failed with ", task.getException());
+                                }
+                            }
+                        });
+                        /*********get*********/
+
+                    }//end of if(notiKey == 3)
+
+                }//onClick
             });
             builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -130,77 +359,12 @@ public class Notification extends AppCompatActivity
             AlertDialog dialog = builder.create();
             dialog.show();
 
-/*****************/
-/*
-            firebaseFirestore.collection("statistic")
-                    .document(userMail)
-            .update(
-                    "water","10"
-            );
+/****push**/
 
-            firebaseFirestore.collection("notiresult")
-                    .document(userMail)
-                    .update(
-                            "result", "1",
-                            "type","10"
-
-                    );
-
-
-
-
-            CollectionReference statRef = firebaseFirestore.collection("statistic");
-
-            DocumentReference statisticUD = firebaseFirestore.collection("statistic")
-                                            .document(userMail);
-
-            statisticUD
-                    .update("water", "10")
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("Result", "DocumentSnapshot successfully updated!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("Result", "Error updating document", e);
-                        }
-                    });
-*/
-
-/****************/
-
-
-            /****push**/
-/*
-            firebaseFirestore = FirebaseFirestore.getInstance();
-
-            Map<String,String> userMap = new HashMap<>();
-            userMap.put("email","s@mail.com");
-            userMap.put("result","100");
-            userMap.put("type","0");
-            userMap.put("type","0");
-            userMap.put("type","0");
-            firebaseFirestore.collection("statistic").add(userMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Toast.makeText(Notification.this,"Added Success!",Toast.LENGTH_SHORT).show();
-
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    String error = e.getMessage();
-                    Toast.makeText(Notification.this,"Error : " + error,Toast.LENGTH_SHORT).show();
-                }
-            });
-*/
-            /***push***/
-            //(if get = notied)
-
-        }
+        }catch(Exception e){
+                Log.d("ss" , "Take : .. " + e.getMessage());
+            }
+    }
 
 
 
@@ -386,7 +550,7 @@ public class Notification extends AppCompatActivity
         Calendar calendar = Calendar.getInstance();
         hour = calendar.get(calendar.HOUR_OF_DAY);
         minute = calendar.get(calendar.MINUTE);
-        TimePickerDialog timePickerDialog = new TimePickerDialog(Notification.this, Notification.this,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(Notification.this, android.app.AlertDialog.THEME_HOLO_LIGHT, Notification.this,
                 hour,minute, DateFormat.is24HourFormat(this));
         timePickerDialog.show();
     }
@@ -399,14 +563,30 @@ public class Notification extends AppCompatActivity
 
         setAlarm(yearFinal,mountFinal,dayFinal,hourFinal,minuteFinal);
 
-        String s = dayFinal +"/"+mountFinal+"/"+ yearFinal + "\n" + "Set Time" + " : " +
-                hourFinal+ ":" + minuteFinal + "\n"+
-                "Notification" + " : " + sub;
+        String s = hourFinal +":" +minuteFinal + " " + " | " + sub;
+        timeList.add(new notiTyping(
+                s
+        ));
 
-        addLv();
-        addItem.add(s);
 
-        addAdapter.notifyDataSetChanged();
+        recyclerView = (RecyclerView) findViewById(R.id.recyList);
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        notiAdapter ss = new notiAdapter(timeList);
+        recyclerView.setAdapter(ss);
+
+        /*addItem.add(s);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrL);
+        addAdapter = new ArrayAdapter<String>(this, android.R.layout.activity_list_item, addItem);
+        recyclerView.setAdapter();*/
+
+
+
     }
 
 
@@ -423,17 +603,20 @@ public class Notification extends AppCompatActivity
 
 
         Intent intent = new Intent(Notification.this, MyReceiver.class);
+        intent.putExtra("userTyping",sub);
         alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), alarmIntent);
 
     }
 
-    private void addLv() {
-        lv1 = (ListView) findViewById(R.id.notiList);
+   /* private void addLv() {
+        lv1 = (ListView) findViewById(R.id.recyList);
         addItem = new ArrayList<String>();
         addAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, addItem);
         lv1.setAdapter(addAdapter);
-    }
+    }*/
+   /*addLv();
+        addItem.add(s);*/
     /**SetTime**/
 }

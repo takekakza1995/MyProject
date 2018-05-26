@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.os.Parcelable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -30,16 +31,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         RemoteMessage.Notification notification = remoteMessage.getNotification();
-        Map<String, String> data = remoteMessage.getData();
+
+        String data = remoteMessage.getData().get("notiType");
+        Log.d("NOTI5550", String.valueOf(data));
 
         sendNotification(notification, data);
     }
 
-    private void sendNotification(RemoteMessage.Notification notification, Map<String, String> data) {
+    private void sendNotification(RemoteMessage.Notification notification, String data) {
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        //String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+
         Intent intent = new Intent(this, Notification.class);
-        intent.putExtra("Noti",refreshedToken);
+        intent.putExtra("Noti", String.valueOf(data));
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
