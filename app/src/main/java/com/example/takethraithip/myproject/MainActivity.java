@@ -80,6 +80,10 @@ public class MainActivity extends AppCompatActivity
 
 /****Nav***/
 
+/************/
+
+/************/
+
         /********Click*******/
         notiView = (ImageView) findViewById(R.id.notiView);
         plantView = (ImageView) findViewById(R.id.plantView);
@@ -88,9 +92,9 @@ public class MainActivity extends AppCompatActivity
         notiView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,Notification.class);
+                Intent intent = new Intent(MainActivity.this,ReminderActivity.class);
                 startActivity(intent);
-                finish();
+
             }
         });
 
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,Plant.class);
                 startActivity(intent);
-                finish();
+
             }
         });
 
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,Statistic.class);
                 startActivity(intent);
-                finish();
+
             }
         });
         /*******Click********/
@@ -149,27 +153,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -181,22 +165,22 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_main:
                 Intent homeIntent = new Intent(MainActivity.this,MainActivity.class);
                 startActivity(homeIntent);
-                finish();
+
                 break;
             case R.id.nav_notificaion:
                 Intent notiIntent = new Intent(MainActivity.this,Notification.class);
                 startActivity(notiIntent);
-                finish();
+
                 break;
             case R.id.nav_statistic:
                 Intent statisticIntent = new Intent(MainActivity.this,Statistic.class);
                 startActivity(statisticIntent);
-                finish();
+
                 break;
             case R.id.nav_plant:
                 Intent plantIntent = new Intent(MainActivity.this,Plant.class);
                 startActivity(plantIntent);
-                finish();
+                ;
                 break;
            /*case R.id.nav_setting:
                 Intent settingIntent = new Intent(MainActivity.this,Notification.class);

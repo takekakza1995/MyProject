@@ -6,6 +6,7 @@
     android:background="@color/textForRed"
     android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:minWidth="100dp"
     android:paddingBottom="30dp"
     android:paddingEnd="30dp"
     android:paddingStart="20dp"

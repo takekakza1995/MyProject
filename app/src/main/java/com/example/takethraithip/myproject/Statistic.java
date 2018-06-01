@@ -1,5 +1,6 @@
 package com.example.takethraithip.myproject;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,12 +26,14 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,7 +48,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +64,6 @@ public class Statistic extends AppCompatActivity
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     int waterChartValue,lightChartValue,ferChartValue;
     BarChart barChart;
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,39 +98,59 @@ public class Statistic extends AppCompatActivity
         Picasso.with(Statistic.this).load(url1.toString()).into(navProfilePic);
 
         /*******nav******/
+        /*CollectionReference coll = db.collection("users").document(mail1).collection("notiResult");
+        coll.getId().startsWith("25-05-2018");*/
+
+        loadChartData();//get data from firestore
+        createChart(); //chart all stat
+        testValue = (TextView)findViewById(R.id.testValue);
+        testValue.setText("Data from FireStore =>" + String.valueOf(waterChartValue)+":"
+                +String.valueOf(lightChartValue)+":"+String.valueOf(ferChartValue));
 
 
+        Button lightButton,waterButton;
+        lightButton = (Button) findViewById(R.id.Lbtn);
+        waterButton = (Button) findViewById(R.id.wBtn);
 
-
-        /*******get********/
-        /*final DocumentReference statData = db.collection("statistic").document(mail1);
-
-        statData.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        lightButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("GetStatsssss", "DocumentSnapshot data: " + document.getData());
+            public void onClick(View view) {
+                Intent lIntent = new Intent(Statistic.this,LightChart.class);
+                startActivity(lIntent);
 
-                        String getWater = (String) document.getData().get("water"); // get data from FS
-                        waterData = Integer.parseInt(getWater);
-                        String getLight = (String) document.getData().get("light"); // get data from FS
-                        ligtData = Integer.parseInt(getLight);
-                        String getBehav = (String) document.getData().get("behavior"); // get data from FS
-                        behavData = Integer.parseInt(getBehav);
 
-                    } else {
-                        Log.d("GetStat", "No such document");
-                    }
-                } else {
-                    Log.d("GetStat", "get failed with ", task.getException());
-                }
+
             }
-        });*/
-            /******************get water count*********************/
+        });
+
+        waterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //show graph
+                Intent intent = new Intent(Statistic.this,WaterChart.class);
+                startActivity(intent);
+
+
+            }
+        });
+
+
+
+    }//on Create
+
+    private void loadChartData() {
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        final String mail1 = sharedPreferences.getString("email","not found");
+        /******************get water count*********************/
+
+        Calendar calender = Calendar.getInstance();
+        final int currentWeek = calender.get(Calendar.WEEK_OF_YEAR);
+        int currentYears = calender.get(Calendar.YEAR);
+        int oneWeekAgo = currentWeek -1 ;
+        int twoWeekAgo = currentWeek -2 ;
+
         final CollectionReference getWaterCount = db.collection("users").document(mail1).collection("notiResult");
-        getWaterCount.whereEqualTo("notiType","1")
+        getWaterCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","1")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -152,7 +174,7 @@ public class Statistic extends AppCompatActivity
 
         /****** get light count ***********/
         final CollectionReference getLightCount = db.collection("users").document(mail1).collection("notiResult");
-        getLightCount.whereEqualTo("notiType","2")
+        getLightCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","2")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -174,7 +196,7 @@ public class Statistic extends AppCompatActivity
 
         /********get fer count*********/
         final CollectionReference getFerCount = db.collection("users").document(mail1).collection("notiResult");
-        getFerCount.whereEqualTo("notiType","3")
+        getFerCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","3")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -202,56 +224,143 @@ public class Statistic extends AppCompatActivity
         waterChartValue = sharedPreferences.getInt("waterValue", 0);
         lightChartValue = sharedPreferences.getInt("lightValue",0);
         ferChartValue = sharedPreferences.getInt("ferValue",0);
+    }
 
+    private void createChart() {
+        /******chart******/
 
-        String tt = "";
-        testValue = (TextView)findViewById(R.id.testValue);
-        testValue.setText(String.valueOf(waterChartValue)+":"
-                +String.valueOf(lightChartValue)+":"+String.valueOf(ferChartValue));
-
-
-        Button lightButton,waterButton;
-        lightButton = (Button) findViewById(R.id.Lbtn);
-        waterButton = (Button) findViewById(R.id.wBtn);
-
-        lightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //show graph
-
-            }
-        });
-
-        waterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //show graph
-            }
-        });
-
-/******chart******/
         barChart = (BarChart) findViewById(R.id.statBarchart);
-        /*barChart.setDrawBarShadow(false);
+
+        ArrayList<BarEntry> waterBar = new ArrayList<>();
+        waterBar.add(new BarEntry(waterChartValue,0)); //data week 1
+        waterBar.add(new BarEntry(5,1));   //data week 2
+        waterBar.add(new BarEntry(2,2));   //data week 3
+        //waterBar.add(new BarEntry(8,3));   //data week 4
+
+        ArrayList<BarEntry> lightBar = new ArrayList<>();
+        lightBar.add(new BarEntry(lightChartValue,0)); //data week 1
+        lightBar.add(new BarEntry(3,1));   //data week 2
+        lightBar.add(new BarEntry(7,2));   //data week 3
+        //lightBar.add(new BarEntry(4,3));   //data week 4
+
+        ArrayList<String> label = new ArrayList<>();
+        label.add("This Week");
+        label.add("One week ago");
+        label.add("Two week ago");
+       // label.add("Three week ago");
+
+        BarDataSet barWaterSet = new BarDataSet(waterBar,"Water");
+        barWaterSet.setColor(Color.rgb(110,235,255));
+
+        BarDataSet barLightSet = new BarDataSet(lightBar,"Light");
+        barLightSet.setColor(Color.rgb(255,255,100));
+
+        ArrayList<BarDataSet> dataSets = new ArrayList<>();
+        dataSets.add(barWaterSet);
+        dataSets.add(barLightSet);
+
+        BarData barData = new BarData(label,dataSets);
+        barChart.setDescription(" All Statistic");
+        barChart.animateY(2000);
+        barChart.setData(barData);
+
+
+
+/*
+        barChart = (BarChart) findViewById(R.id.statBarchart);
+        barChart.setDrawBarShadow(false);
         barChart.setDrawValueAboveBar(true);
         barChart.setMaxVisibleValueCount(50);
+        barChart.setDescription(null);
         barChart.setPinchZoom(false);
         barChart.setFitBars(true);
-        barChart.setDrawGridBackground(true);*/
+        barChart.setDrawGridBackground(true);
 
-        ArrayList<BarEntry> barEntries1 = new ArrayList<>();
-        barEntries1.add(new BarEntry(waterChartValue,0));
-        barEntries1.add(new BarEntry(lightChartValue,1));
-        barEntries1.add(new BarEntry(ferChartValue,2));
+        ArrayList<BarEntry> waterBar = new ArrayList<>();
+        waterBar.add(new BarEntry(0f,waterChartValue)); //data week 1
+        waterBar.add(new BarEntry(1f,5));   //data week 2
+        waterBar.add(new BarEntry(2f,7));   //data week 3
 
-        ArrayList<BarEntry> barEntries2 = new ArrayList<>();
-        barEntries2.add(new BarEntry(waterChartValue,0));
-        barEntries2.add(new BarEntry(lightChartValue,1));
-        barEntries2.add(new BarEntry(ferChartValue,2));
+        ArrayList<BarEntry> lightBar = new ArrayList<>();
+        lightBar.add(new BarEntry(0f,lightChartValue)); //data week 1
+        lightBar.add(new BarEntry(1f,4));   //data week 2
+        lightBar.add(new BarEntry(2f,9));   //data week 3
 
-        ArrayList<BarEntry> barEntries3 = new ArrayList<>();
-        barEntries3.add(new BarEntry(waterChartValue,0));
-        barEntries3.add(new BarEntry(lightChartValue,1));
-        barEntries3.add(new BarEntry(ferChartValue,2));
+        ArrayList<BarEntry> behavBar = new ArrayList<>();
+        behavBar.add(new BarEntry(0f,ferChartValue));   //data week 1
+        behavBar.add(new BarEntry(1f,4));   //data week 2
+        behavBar.add(new BarEntry(2f,6));   //data week 3
+
+
+        int groupCount = 2;
+        final ArrayList label = new ArrayList();
+        label.add("This Week");*/
+
+       /* label.add("One Week Ago");
+        label.add("Two Week Ago");*/
+
+    /*    BarDataSet set1,set2,set3;
+        set1 = new BarDataSet(waterBar,"water");
+        set1.setColor(Color.rgb(110,235,255));
+        set2 = new BarDataSet(lightBar,"light");
+        set2.setColor(Color.rgb(255,255,100));
+        set3 = new BarDataSet(behavBar,"pos");
+        set3.setColor(Color.rgb(100,255,110));*/
+
+     /*   float groupSpace,barSpac,barWidth;
+        groupSpace = 1f;
+        barSpac =    0.5f;
+        barWidth = 0.7f;
+
+        BarData data = new BarData(set1,set2,set3);
+        data.setValueFormatter(new LargeValueFormatter());
+        barChart.setData(data);
+        barChart.getBarData().setBarWidth(0.3f);
+        barChart.getXAxis().setAxisMinimum(0);
+        barChart.getXAxis().setAxisMaximum(0 + barChart.getBarData().getGroupWidth(groupSpace,barSpac) * groupCount);
+        barChart.groupBars(0,groupSpace,barSpac);
+        barChart.getData().setHighlightEnabled(false);
+        barChart.invalidate();*/
+
+        //data.setBarWidth(barWidth);
+        //barChart.setData(data);
+        //barChart.setDescription("All Statistic");
+    /*    barChart.setTouchEnabled(true);
+        barChart.setDragEnabled(true);
+        barChart.setScaleEnabled(true);
+
+
+        Legend l = barChart.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        l.setDrawInside(true);
+        l.setYOffset(20f);
+        l.setXOffset(0f);
+        l.setYEntrySpace(0f);
+        l.setTextSize(8f);
+
+        //X-axis
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setGranularity(0.5f);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setAxisMinimum(0);
+        xAxis.setEnabled(true);
+        xAxis.setDrawGridLines(false);
+        xAxis.setAxisMaximum(10);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(label));
+
+//Y-axis/*
+        barChart.getAxisRight().setEnabled(false);
+        YAxis leftAxis = barChart.getAxisLeft();
+        leftAxis.setValueFormatter(new LargeValueFormatter());
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setSpaceTop(30f);
+        leftAxis.setAxisMinimum(0f);
+
+
+        */
 
         //barEntries.add(new BarEntry(4,70f));
 
@@ -261,22 +370,13 @@ public class Statistic extends AppCompatActivity
         barEntries1.add(new BarEntry(3,50f));
         barEntries1.add(new BarEntry(4,40f));*/
 
-        BarDataSet barDataSet = new BarDataSet(barEntries1,"Stat");
-        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-
-        ArrayList<String> label = new ArrayList<>();
-        label.add("This Week");
-        label.add("One Week Ago");
-        label.add("Two Week Ago");
+       /* BarDataSet barDataSet = new BarDataSet(barEntries1,"Stat");
+        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);*/
 
 
-        BarData data = new BarData(label,barDataSet);
 
-        barChart.setData(data);
-        //barChart.setDescription("All Statistic");
-        barChart.setTouchEnabled(true);
-        barChart.setDragEnabled(true);
-        barChart.setScaleEnabled(true);
+
+        //BarData data = new BarData(barDataSet);
 
         /*BarDataSet barDataSet1 = new BarDataSet(barEntries1,"Data set2");
         barDataSet1.setColors(ColorTemplate.COLORFUL_COLORS);*/
@@ -284,7 +384,7 @@ public class Statistic extends AppCompatActivity
         //BarData data = new BarData(barDataSet);
 
         //float groupSpace = 0.1f;
-       // float barSpace = 0.02f;
+        // float barSpace = 0.02f;
         //float barWidth = 0.50f;
 
         //data.setBarWidth(barWidth);
@@ -301,14 +401,8 @@ public class Statistic extends AppCompatActivity
         axis.setAxisMinimum(0.1f);
         axis.setAxisMinimum(0.1f);
 */
-
-
-
         /************chart*********/
-
-    }//on Create
-
-    /*************class for chart****************/
+        /*************class for chart****************/
      /*   public class MyXAxisValueFormatter implements IAxisValueFormatter{
 
             private String[] mValues;
@@ -325,7 +419,12 @@ public class Statistic extends AppCompatActivity
         }
     }
 */
-    /*************class for chart****************/
+        /*************class for chart****************/
+
+
+    }
+
+
 
 
 
@@ -339,27 +438,6 @@ public class Statistic extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

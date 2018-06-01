@@ -121,8 +121,14 @@ public class Notification extends AppCompatActivity
                     // update to fire store
 
                     Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    final String strDate = mdformat.format(calendar.getTime());
+
+                    SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");// for Doc name
+                    final String strDate = mdformat.format(calendar.getTime()); // for Doc name
+                    final int currentWeek = calendar.get(Calendar.WEEK_OF_YEAR);
+                    final int currentYear = calendar.get(Calendar.YEAR);
+
+
+
 
                     final DocumentReference statisticUD = db.collection("statistic").document(userMail);
                     final DocumentReference plantData = db.collection("plant").document(userMail);
@@ -181,10 +187,12 @@ public class Notification extends AppCompatActivity
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()){
-                                                    Map<String,String> userData = new HashMap<>();
+                                                    Map<String,Object> userData = new HashMap<>();
                                                     userData.put("notiType", String.valueOf(notiKey));
-                                                    userData.put("result", String.valueOf(true));
+                                                    userData.put("week",currentWeek);
+                                                    userData.put("year",currentYear);
                                                     userRef.document(strDate).set(userData);
+
                                                 }
                                             }
                                         });
@@ -254,9 +262,10 @@ public class Notification extends AppCompatActivity
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()){
-                                                    Map<String,String> userData = new HashMap<>();
+                                                    Map<String,Object> userData = new HashMap<>();
                                                     userData.put("notiType", String.valueOf(notiKey));
-                                                    userData.put("result", String.valueOf(true));
+                                                    userData.put("week",currentWeek);
+                                                    userData.put("year",currentYear);
                                                     userRef.document(strDate).set(userData);
                                                 }
                                             }
@@ -328,9 +337,10 @@ public class Notification extends AppCompatActivity
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()){
-                                                    Map<String,String> userData = new HashMap<>();
+                                                    Map<String,Object> userData = new HashMap<>();
                                                     userData.put("notiType", String.valueOf(notiKey));
-                                                    userData.put("result", String.valueOf(true));
+                                                    userData.put("week",currentWeek);
+                                                    userData.put("year",currentYear);
                                                     userRef.document(strDate).set(userData);
                                                 }
                                             }
@@ -469,27 +479,6 @@ public class Notification extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -501,17 +490,17 @@ public class Notification extends AppCompatActivity
             case R.id.nav_main:
                 Intent homeIntent = new Intent(Notification.this,MainActivity.class);
                 startActivity(homeIntent);
-                finish();
+
                 break;
             case R.id.nav_notificaion:
                 Intent notiIntent = new Intent(Notification.this,Notification.class);
                 startActivity(notiIntent);
-                finish();
+
                 break;
             case R.id.nav_statistic:
                 Intent statisticIntent = new Intent(Notification.this,Statistic.class);
                 startActivity(statisticIntent);
-                finish();
+
                 break;
             case R.id.nav_plant:
                 Intent plantIntent = new Intent(Notification.this,Plant.class);

@@ -1,8 +1,10 @@
 package com.example.takethraithip.myproject;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -10,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,6 +36,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
@@ -41,11 +47,13 @@ public class Plant extends AppCompatActivity
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPreferences;
-    TextView navUserName,navUserMail,waterTxt,ferTxt,lightTxt;
+    TextView navUserName,navUserMail,waterTxt,ferTxt,lightTxt,testDrag;
     ImageView navProfilePic,treePic,imgFer,imgWater,imgLight;
     Button waterBtn,ferBtn,LightBtn;
     String itemSelect,getWater,getLight,getfer,getWaterN,getLightN,getFerN;
     int water,light,fer,addWater,addFer,addLight;
+    StorageReference storageReference;
+
 
 
     @Override
@@ -54,7 +62,7 @@ public class Plant extends AppCompatActivity
         setContentView(R.layout.activity_plant);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        testDrag = (TextView) findViewById(R.id.testDrag);
 
         sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
         String name1 = sharedPreferences.getString("name","not Found");
@@ -77,7 +85,14 @@ public class Plant extends AppCompatActivity
         waterTxt = (TextView) findViewById(R.id.warterTxt);
         lightTxt = (TextView) findViewById(R.id.lightTxt);
         ferTxt = (TextView) findViewById(R.id.ferTxt) ;
+
+
         treePic = (ImageView) findViewById(R.id.treeSrc);
+
+        String testImgUri = "https://firebasestorage.googleapis.com/v0/b/adroit-terminus-172607.appspot.com/o/giphy.gif?alt=media&token=9fd37d2a-4f57-4715-b1ee-86f2264a69e5";
+
+        Glide.with(this).load(testImgUri).into(treePic);
+
 
 
 
@@ -152,117 +167,157 @@ public class Plant extends AppCompatActivity
 
         /********get*******/
 
-        /******click******/
+        imgLight.setOnLongClickListener(longClickListener);
+        imgFer.setOnLongClickListener(longClickListener);
+        imgWater.setOnLongClickListener(longClickListener);
+        treePic.setOnDragListener(dragListener);
 
 
-        imgWater.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                itemSelect = "1";
-                }
-        });
+    }//onCreate
 
-        imgFer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                itemSelect = "2";
+    /*******drag*********/
+    View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
+
+        @Override
+        public boolean onLongClick(View view) {
+
+            ClipData clipData = ClipData.newPlainText("","");
+            View.DragShadowBuilder myShadowBuilder = new View.DragShadowBuilder(view);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                view.startDragAndDrop(clipData,myShadowBuilder,view,0);
             }
-        });
-
-        imgLight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                itemSelect = "3";
+            else {
+                view.startDrag(clipData,myShadowBuilder,view,0);
             }
-        });
+            return true;
+        }
+    };
+
+    View.OnDragListener dragListener = new View.OnDragListener() {
+
+        @Override
+        public boolean onDrag(View view, DragEvent event) {
+
+           int dragEvent = event.getAction();
+
+           switch (dragEvent){
+
+               case DragEvent.ACTION_DROP:
+                   final View v = (View) event.getLocalState();
+
+                   if (v.getId() == R.id.imgWater){
+                       int imgId = 1;
+                        updatePlant(imgId);
+
+                       testDrag.setText("Water");
+                   }
+
+                   if (v.getId() == R.id.imgFer){
+                       int imgId = 2;
+                       updatePlant(imgId);
+
+                       testDrag.setText("Fertilzer");
+                   }
+
+                   if (v.getId() == R.id.imgLight){
+
+                       int imgId = 3;
+                       updatePlant(imgId);
+
+                       testDrag.setText("Light");
+
+                   }
+
+                   break;
+
+           }
+
+           return true;
+        }
 
 
-        treePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (itemSelect == null){
-                    Toast.makeText(Plant.this,"Please Select Item First",Toast.LENGTH_SHORT).show();
-                }else {
+    };
 
-                switch (itemSelect) {
-                    case "1":
-                        plantData
-                                .update("addWater", String.valueOf(addWater + 1),
-                                        "water", String.valueOf(water - 1))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
-                                        Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("PlantData", "Error updating document", e);
-                                        Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
-                                    }
-                                });
+    private void updatePlant(int imgId) {
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        String mail1 = sharedPreferences.getString("email","not found");
+        final DocumentReference plantData = db.collection("plant").document(mail1);
 
-                        break;
-                    case "2":
-                        plantData
-                                .update("addFer", String.valueOf(addFer + 1),
-                                        "fertilizer", String.valueOf(fer - 1))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
-                                        Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("PlantData", "Error updating document", e);
-                                        Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                        break;
+        switch (imgId) {
+            case 1 :
+                plantData
+                        .update("addWater", String.valueOf(addWater + 1),
+                                "water", String.valueOf(water - 1))
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("PlantData", "Error updating document", e);
+                                Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
+                            }
+                        });
 
-                    case "3":
-                        plantData
-                                .update("addLight", String.valueOf(addLight + 1),
-                                        "light", String.valueOf(light - 1))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("PlantData", "DocumentSnapshot successfully updated!");
-                                        Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("PlantData", "Error updating document", e);
-                                        Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                        break;
+                break;
+            case 2 :
+                plantData
+                        .update("addFer", String.valueOf(addFer + 1),
+                                "fertilizer", String.valueOf(fer - 1))
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("PlantData", "Error updating document", e);
+                                Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                break;
 
-                    }
-                }
+            case 3 :
+                plantData
+                        .update("addLight", String.valueOf(addLight + 1),
+                                "light", String.valueOf(light - 1))
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("PlantData", "DocumentSnapshot successfully updated!");
+                                Toast.makeText(Plant.this, "Success", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("PlantData", "Error updating document", e);
+                                Toast.makeText(Plant.this, "Failed", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                break;
 
+        }
 
-
-                Intent refresh = new Intent(Plant.this, Plant.class);
-                startActivity(refresh);
-                finish();
-            }
-        });
-        /*****click*****/
-
-
-
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
 
 
 
     }
+
+    /********drag*******/
+
+
+
 
     @Override
     public void onBackPressed() {
@@ -274,27 +329,7 @@ public class Plant extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

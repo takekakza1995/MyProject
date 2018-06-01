@@ -19,5 +19,10 @@
     <string name="account">Account</string>
     <string name="plantMainPic">Plant</string>
     <string name="statMainPic">Statistic</string>
+    <string name="title_activity_notification_v2">NotificationV2</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="reminder">Reminder</string>
 
 </resources>
