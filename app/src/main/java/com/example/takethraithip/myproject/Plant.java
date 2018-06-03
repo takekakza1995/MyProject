@@ -344,7 +344,7 @@ public class Plant extends AppCompatActivity
                 finish();
                 break;
             case R.id.nav_notificaion:
-                Intent notiIntent = new Intent(Plant.this,Notification.class);
+                Intent notiIntent = new Intent(Plant.this,ReminderActivity.class);
                 startActivity(notiIntent);
                 finish();
                 break;

@@ -69,9 +69,9 @@ public class WaterChart extends AppCompatActivity {
         waterChart.setDrawGridBackground(true);
 
         ArrayList<BarEntry> waterBar = new ArrayList<>();
-        waterBar.add(new BarEntry(week0Value,0)); //data week 1
+        waterBar.add(new BarEntry(week2Value,0)); //data week 1
         waterBar.add(new BarEntry(week1Value,1));   //data week 2
-        waterBar.add(new BarEntry(week2Value,2));   //data week 3
+        waterBar.add(new BarEntry(week0Value,2));   //data week 3
         //waterBar.add(new BarEntry(6f,3));   //data week 3
 
 
@@ -80,9 +80,9 @@ public class WaterChart extends AppCompatActivity {
 
 
         final ArrayList label = new ArrayList();
-        label.add("This Week");
-        label.add("One week ago");
         label.add("Two week ago");
+        label.add("One week ago");
+        label.add("This weel");
         //label.add("Three week ago");
 
         BarData barData = new BarData(label,barDataSet);

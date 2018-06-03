@@ -24,5 +24,6 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="reminder">Reminder</string>
+    <string name="reminder_nav">Reminder</string>
 
 </resources>

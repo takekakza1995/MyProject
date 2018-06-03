@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case R.id.nav_notificaion:
-                Intent notiIntent = new Intent(MainActivity.this,Notification.class);
+                Intent notiIntent = new Intent(MainActivity.this,ReminderActivity.class);
                 startActivity(notiIntent);
 
                 break;

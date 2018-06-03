@@ -62,7 +62,8 @@ public class Statistic extends AppCompatActivity
     ImageView navProfilePic;
     SharedPreferences sharedPreferences;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    int waterChartValue,lightChartValue,ferChartValue;
+    int waterThisWeekValue,waterOneAgoValue,waterTwoAgoValue,
+            lightThisWeekValue,lightOneAgoValue,lightTwoAgoValue,ferChartValue;
     BarChart barChart;
 
     @Override
@@ -103,9 +104,10 @@ public class Statistic extends AppCompatActivity
 
         loadChartData();//get data from firestore
         createChart(); //chart all stat
+        Calendar calender = Calendar.getInstance();
+        final int currentWeek = calender.get(Calendar.WEEK_OF_YEAR);
         testValue = (TextView)findViewById(R.id.testValue);
-        testValue.setText("Data from FireStore =>" + String.valueOf(waterChartValue)+":"
-                +String.valueOf(lightChartValue)+":"+String.valueOf(ferChartValue));
+        testValue.setText(String.valueOf(currentWeek));
 
 
         Button lightButton,waterButton;
@@ -141,7 +143,7 @@ public class Statistic extends AppCompatActivity
     private void loadChartData() {
         sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
         final String mail1 = sharedPreferences.getString("email","not found");
-        /******************get water count*********************/
+
 
         Calendar calender = Calendar.getInstance();
         final int currentWeek = calender.get(Calendar.WEEK_OF_YEAR);
@@ -149,8 +151,18 @@ public class Statistic extends AppCompatActivity
         int oneWeekAgo = currentWeek -1 ;
         int twoWeekAgo = currentWeek -2 ;
 
-        final CollectionReference getWaterCount = db.collection("users").document(mail1).collection("notiResult");
-        getWaterCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","1")
+        final CollectionReference getWaterThisWeek;
+        final CollectionReference getWaterOneAgo;
+        final CollectionReference getWaterTwoAgo;
+
+        final CollectionReference getLightThisWeek;
+        final CollectionReference getLightOneAgo;
+        final CollectionReference getLightTwoAgo;
+
+/******************get water count*********************/
+/*******this week*******/
+        getWaterThisWeek = db.collection("users").document(mail1).collection("notiResult");
+        getWaterThisWeek.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","1")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -161,7 +173,7 @@ public class Statistic extends AppCompatActivity
 
                             sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putInt("waterValue",waterSize);
+                            editor.putInt("waterThisWeek",waterSize);
                             editor.commit();
 
                             Log.d("DataCount","Water have" + waterSize);
@@ -170,17 +182,70 @@ public class Statistic extends AppCompatActivity
                         }
                     }
                 });
+        /*******this week*******/
+
+        /*******one ago*******/
+        getWaterOneAgo = db.collection("users").document(mail1).collection("notiResult");
+        getWaterOneAgo.whereEqualTo("week",oneWeekAgo).whereEqualTo("year",currentYears).whereEqualTo("notiType","1")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            int waterOneAgo = task.getResult().size();
+
+                            sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("waterOneAgo",waterOneAgo);
+                            editor.commit();
+
+                            Log.d("DataCount","Water 1ago have" + waterOneAgo);
+                        } else {
+                            Log.d("GetData555", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        /*******one ago*******/
+
+        /*******two ago*******/
+        getWaterTwoAgo = db.collection("users").document(mail1).collection("notiResult");
+        getWaterTwoAgo.whereEqualTo("week",twoWeekAgo).whereEqualTo("year",currentYears).whereEqualTo("notiType","1")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            int waterTwoAgo = task.getResult().size();
+
+                            sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("waterTwoAgo",waterTwoAgo);
+                            editor.commit();
+
+                            Log.d("DataCount","Water 2ago have" + waterTwoAgo);
+                        } else {
+                            Log.d("GetData555", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        /*******two ago*******/
+
         /****************** get water count *********************/
 
         /****** get light count ***********/
-        final CollectionReference getLightCount = db.collection("users").document(mail1).collection("notiResult");
-        getLightCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","2")
+
+        /*********light this week**********/
+        getLightThisWeek = db.collection("users").document(mail1).collection("notiResult");
+        getLightThisWeek.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","2")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             int lightSize = task.getResult().size();
+
                             sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("lightValue",lightSize);
@@ -192,9 +257,58 @@ public class Statistic extends AppCompatActivity
                         }
                     }
                 });
+        /*********light this week**********/
+
+        /*********light one ago**********/
+        getLightOneAgo = db.collection("users").document(mail1).collection("notiResult");
+        getLightOneAgo.whereEqualTo("week",oneWeekAgo).whereEqualTo("year",currentYears).whereEqualTo("notiType","2")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int lightOneAgo = task.getResult().size();
+
+                            sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("lightOneAgo",lightOneAgo);
+                            editor.commit();
+
+                            Log.d("DataCount","Light1 have" + String.valueOf(lightOneAgo));
+                        } else {
+                            Log.d("GetData555", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        /*********light one ago**********/
+
+        /******light two ago*****/
+        getLightTwoAgo = db.collection("users").document(mail1).collection("notiResult");
+        getLightTwoAgo.whereEqualTo("week",twoWeekAgo).whereEqualTo("year",currentYears).whereEqualTo("notiType","2")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int lightTwoAgo = task.getResult().size();
+
+                            sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("lightTwoAgo",lightTwoAgo);
+                            editor.commit();
+
+                            Log.d("DataCount","Light1 have" + String.valueOf(lightTwoAgo));
+                        } else {
+                            Log.d("GetData555", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        /******light two ago*****/
+
         /*******get light count**********/
 
         /********get fer count*********/
+        /*
         final CollectionReference getFerCount = db.collection("users").document(mail1).collection("notiResult");
         getFerCount.whereEqualTo("week",currentWeek).whereEqualTo("year",currentYears).whereEqualTo("notiType","3")
                 .get()
@@ -214,6 +328,7 @@ public class Statistic extends AppCompatActivity
                         }
                     }
                 });
+                */
         /*******get fer count**********/
 
 
@@ -221,9 +336,16 @@ public class Statistic extends AppCompatActivity
 
         sharedPreferences = getSharedPreferences("chartData",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        waterChartValue = sharedPreferences.getInt("waterValue", 0);
-        lightChartValue = sharedPreferences.getInt("lightValue",0);
-        ferChartValue = sharedPreferences.getInt("ferValue",0);
+        waterThisWeekValue = sharedPreferences.getInt("waterValue", 0);
+        waterOneAgoValue = sharedPreferences.getInt("waterOneAgo",0);
+        waterTwoAgoValue = sharedPreferences.getInt("waterTwoAgo",0);
+
+        lightThisWeekValue = sharedPreferences.getInt("lightValue",0);
+        lightOneAgoValue = sharedPreferences.getInt("lightOneAgo",0);
+        lightTwoAgoValue = sharedPreferences.getInt("lightTwoAgo",0);
+
+        //ferChartValue = sharedPreferences.getInt("ferValue",0);
+
     }
 
     private void createChart() {
@@ -232,21 +354,21 @@ public class Statistic extends AppCompatActivity
         barChart = (BarChart) findViewById(R.id.statBarchart);
 
         ArrayList<BarEntry> waterBar = new ArrayList<>();
-        waterBar.add(new BarEntry(waterChartValue,0)); //data week 1
-        waterBar.add(new BarEntry(5,1));   //data week 2
-        waterBar.add(new BarEntry(2,2));   //data week 3
+        waterBar.add(new BarEntry(waterTwoAgoValue,0)); //data week 1
+        waterBar.add(new BarEntry(waterOneAgoValue,1));   //data week 2
+        waterBar.add(new BarEntry(waterThisWeekValue,2));   //data week 3
         //waterBar.add(new BarEntry(8,3));   //data week 4
 
         ArrayList<BarEntry> lightBar = new ArrayList<>();
-        lightBar.add(new BarEntry(lightChartValue,0)); //data week 1
-        lightBar.add(new BarEntry(3,1));   //data week 2
-        lightBar.add(new BarEntry(7,2));   //data week 3
+        lightBar.add(new BarEntry(lightTwoAgoValue,0)); //data week 1
+        lightBar.add(new BarEntry(lightOneAgoValue,1));   //data week 2
+        lightBar.add(new BarEntry(lightThisWeekValue,2));   //data week 3
         //lightBar.add(new BarEntry(4,3));   //data week 4
 
         ArrayList<String> label = new ArrayList<>();
-        label.add("This Week");
-        label.add("One week ago");
         label.add("Two week ago");
+        label.add("One week ago");
+        label.add("This Week");
        // label.add("Three week ago");
 
         BarDataSet barWaterSet = new BarDataSet(waterBar,"Water");
@@ -452,7 +574,7 @@ public class Statistic extends AppCompatActivity
                 finish();
                 break;
             case R.id.nav_notificaion:
-                Intent notiIntent = new Intent(Statistic.this,Notification.class);
+                Intent notiIntent = new Intent(Statistic.this,ReminderActivity.class);
                 startActivity(notiIntent);
                 finish();
                 break;

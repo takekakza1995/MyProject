@@ -158,9 +158,9 @@ public class LightChart extends AppCompatActivity {
 
         lightChart = (BarChart) findViewById(R.id.lightBarchart);
         ArrayList<BarEntry> lightBar = new ArrayList<>();
-        lightBar.add(new BarEntry(week0Value, 0)); //data week 1
+        lightBar.add(new BarEntry(week2Value, 0)); //data week 1
         lightBar.add(new BarEntry(week1Value, 1));   //data week 2
-        lightBar.add(new BarEntry(week2Value, 2));   //data week 3
+        lightBar.add(new BarEntry(week0Value, 2));   //data week 3
 
         BarDataSet barDataSet = new BarDataSet(lightBar,"Light");
         barDataSet.setColor(Color.rgb(255,255,100));
@@ -168,9 +168,9 @@ public class LightChart extends AppCompatActivity {
 
 
         final ArrayList label = new ArrayList();
-        label.add("This Week");
-        label.add("One week ago");
         label.add("Two week ago");
+        label.add("One week ago");
+        label.add("This week");
 
         BarData barData = new BarData(label,barDataSet);
         lightChart.setVisibleXRange(0,10);
