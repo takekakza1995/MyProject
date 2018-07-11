@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".RotationActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take Sensor"
+        android:textSize="20sp"
+        android:layout_margin="10dp"/>
+
+    <TextView
+        android:id="@+id/pitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="X:"
+        android:layout_margin="10dp"/>
+
+    <TextView
+        android:id="@+id/roll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Y:"
+        android:layout_margin="10dp"/>
+
+    <TextView
+        android:id="@+id/zAxis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Z:"
+        android:layout_margin="10dp"/>
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/backRotation"
+        android:text="BACK"
+        android:background="@color/redPrimary"
+        android:textColor="@color/textForRed"
+        />
+
+</LinearLayout>

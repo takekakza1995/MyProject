@@ -1,8 +1,14 @@
+
+
 <resources>
-    <string name="app_name">MyProject</string>
+    <string name="app_name">Rest Reminder</string>
 
     <string name="facebook_application_id">1595854470451984</string>
     <string name="facebook_login_protocil_scheme">fb1595854470451984</string>
+
+    <string name="com.twitter.sdk.android.CONSUMER_KEY">mCai4tSZ8oCztnapwkNpEV8by</string>
+    <string name="com.twitter.sdk.android.CONSUMER_SECRET">xwCKK99QFvmFbv7kcI20LkGE2eWQZUNpFqyTnBzyijyvPBKlWK</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
@@ -25,5 +31,8 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="reminder">Reminder</string>
     <string name="reminder_nav">Reminder</string>
+    <string name="daily_task">Daily Task</string>
+    <string name="title_activity_reminder_v2">User Reminder</string>
+    <string name="title_activity_tree">TreeActivity</string>
 
 </resources>

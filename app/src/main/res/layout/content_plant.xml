@@ -4,89 +4,117 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
+    android:background="@drawable/bg_02"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.takethraithip.myproject.Plant"
+    tools:context=".Plant"
     tools:showIn="@layout/app_bar_plant">
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.50" />
 
     <ImageView
         android:id="@+id/treeSrc"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline5"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="@+id/guideline5" />
+
+    <ImageView
+        android:id="@+id/sun_effect"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/effectGif"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/fer_effect"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="70dp"
+        android:layout_height="100dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/feritem" />
+        app:srcCompat="@drawable/fer_item" />
 
     <ImageView
         android:id="@+id/imageView7"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="70dp"
+        android:layout_height="100dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView6"
-        app:srcCompat="@drawable/wateritem" />
+        app:srcCompat="@drawable/water_item" />
 
     <ImageView
         android:id="@+id/imageView8"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="70dp"
+        android:layout_height="100dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView7"
-        app:srcCompat="@drawable/sunitem" />
+        app:srcCompat="@drawable/light_item" />
+
 
     <TextView
         android:id="@+id/ferTxt"
         android:layout_width="wrap_content"
-        android:layout_height="28dp"
-        android:layout_marginStart="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginEnd="8dp"
         android:text="0"
         android:textAppearance="@android:style/TextAppearance.Large"
         app:layout_constraintBottom_toBottomOf="@+id/imageView6"
-        app:layout_constraintStart_toEndOf="@+id/imageView6" />
+        app:layout_constraintEnd_toEndOf="@+id/imageView6"
+        app:layout_constraintTop_toTopOf="@+id/imageView6" />
 
     <TextView
         android:id="@+id/warterTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginBottom="25dp"
+        android:layout_marginEnd="8dp"
         android:text="0"
         android:textAppearance="@android:style/TextAppearance.Large"
+        android:textColor="@color/textForRed"
         app:layout_constraintBottom_toBottomOf="@+id/imageView7"
-        app:layout_constraintStart_toEndOf="@+id/imageView7" />
+        app:layout_constraintEnd_toEndOf="@+id/imageView7"
+        app:layout_constraintTop_toTopOf="@+id/imageView7" />
 
     <TextView
         android:id="@+id/lightTxt"
         android:layout_width="wrap_content"
-        android:layout_height="28dp"
-        android:layout_marginStart="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginEnd="8dp"
         android:text="0"
         android:textAppearance="@android:style/TextAppearance.Large"
         app:layout_constraintBottom_toBottomOf="@+id/imageView8"
-        app:layout_constraintStart_toEndOf="@+id/imageView8" />
+        app:layout_constraintEnd_toEndOf="@+id/imageView8"
+        app:layout_constraintTop_toTopOf="@+id/imageView8" />
 
 
     <android.support.constraint.Guideline
@@ -95,7 +123,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.8" />
+        app:layout_constraintGuide_percent="0.80" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline7"
@@ -113,31 +141,34 @@
 
     <ImageView
         android:id="@+id/imgFer"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline7"
-        app:layout_constraintTop_toTopOf="@+id/guideline6"
-        app:srcCompat="@drawable/ferusing" />
+        app:srcCompat="@drawable/fer_btn" />
 
     <ImageView
         android:id="@+id/imgWater"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline8"
         app:layout_constraintStart_toStartOf="@+id/guideline7"
-        app:layout_constraintTop_toTopOf="@+id/guideline6"
-        app:srcCompat="@drawable/watering" />
+        app:srcCompat="@drawable/water_btn" />
 
     <ImageView
         android:id="@+id/imgLight"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toTopOf="@+id/guideline6"
-        app:srcCompat="@drawable/sunusing" />
+        app:srcCompat="@drawable/light_btn" />
 
     <TextView
         android:id="@+id/textView5"
@@ -147,7 +178,7 @@
         android:layout_marginEnd="8dp"
         android:text="Fertilzer"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintBottom_toTopOf="@+id/imgFer"
         app:layout_constraintEnd_toEndOf="@+id/imgFer"
         app:layout_constraintEnd_toStartOf="@+id/guideline7"
         app:layout_constraintStart_toStartOf="@+id/imgFer" />
@@ -159,7 +190,7 @@
         android:layout_marginBottom="8dp"
         android:text="Water"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintBottom_toTopOf="@+id/imgWater"
         app:layout_constraintEnd_toEndOf="@+id/imgWater"
         app:layout_constraintStart_toStartOf="@+id/imgWater" />
 
@@ -170,21 +201,57 @@
         android:layout_marginBottom="8dp"
         android:text="Sunlight"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintBottom_toTopOf="@+id/imgLight"
         app:layout_constraintEnd_toEndOf="@+id/imgLight"
         app:layout_constraintStart_toStartOf="@+id/imgLight" />
 
-    <TextView
-        android:id="@+id/testDrag"
+    <ImageView
+        android:id="@+id/fb_share"
+        android:layout_width="113dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/share_facebook" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <ImageView
+        android:id="@+id/google_sh"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/twitt_sh"
+        app:layout_constraintStart_toStartOf="@+id/fb_share"
+        app:layout_constraintTop_toBottomOf="@+id/fb_share"
+        app:srcCompat="@drawable/google_plus" />
+
+    <ImageView
+        android:id="@+id/twitt_sh"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/fb_share"
+        app:layout_constraintTop_toBottomOf="@+id/fb_share"
+        app:srcCompat="@drawable/twitter" />
+
+    <com.facebook.share.widget.ShareButton
+        android:id="@+id/fb_share_fix"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

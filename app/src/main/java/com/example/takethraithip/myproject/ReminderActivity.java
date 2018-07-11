@@ -1,6 +1,5 @@
 package com.example.takethraithip.myproject;
 
-import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 
@@ -18,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -33,7 +33,6 @@ public class ReminderActivity extends AppCompatActivity implements LoaderManager
     AlarmCursorAdapter mCursorAdapter;
     AlarmReminderDbHelper alarmReminderDbHelper = new AlarmReminderDbHelper(this);
     ListView reminderListView;
-    ProgressDialog prgDialog;
     TextView reminderText;
 
     private String alarmTitle = "";
@@ -60,12 +59,9 @@ public class ReminderActivity extends AppCompatActivity implements LoaderManager
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
                 Intent intent = new Intent(ReminderActivity.this, AddReminderActivity.class);
-
                 Uri currentVehicleUri = ContentUris.withAppendedId(AlarmReminderContract.AlarmReminderEntry.CONTENT_URI, id);
-
-                // Set the URI on the data field of the intent
+                Log.d("TESTURI" , String.valueOf(currentVehicleUri));
                 intent.setData(currentVehicleUri);
-
                 startActivity(intent);
 
             }
@@ -126,7 +122,6 @@ public class ReminderActivity extends AppCompatActivity implements LoaderManager
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set Reminder Title");
-
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);

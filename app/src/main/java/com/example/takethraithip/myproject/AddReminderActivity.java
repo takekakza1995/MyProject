@@ -192,12 +192,12 @@ public class AddReminderActivity extends AppCompatActivity implements
 
         // Setup up active buttons
         if (mActive.equals("false")) {
-            mFAB1.setVisibility(View.VISIBLE);
+            //mFAB1.setVisibility(View.VISIBLE);
             mFAB2.setVisibility(View.GONE);
 
         } else if (mActive.equals("true")) {
             mFAB1.setVisibility(View.GONE);
-            mFAB2.setVisibility(View.VISIBLE);
+            //mFAB2.setVisibility(View.VISIBLE);
         }
 
 
@@ -275,7 +275,6 @@ public class AddReminderActivity extends AppCompatActivity implements
         mDateText.setText(mDate);
     }
 
-    // On clicking the active button
     public void selectFab1(View v) {
         mFAB1 = (FloatingActionButton) findViewById(R.id.starred1);
         mFAB1.setVisibility(View.GONE);
@@ -284,7 +283,6 @@ public class AddReminderActivity extends AppCompatActivity implements
         mActive = "true";
     }
 
-    // On clicking the inactive button
     public void selectFab2(View v) {
         mFAB2 = (FloatingActionButton) findViewById(R.id.starred2);
         mFAB2.setVisibility(View.GONE);
@@ -308,7 +306,6 @@ public class AddReminderActivity extends AppCompatActivity implements
     // On clicking repeat type button
     public void selectRepeatType(View v){
         final String[] items = new String[5];
-
         items[0] = "Minute";
         items[1] = "Hour";
         items[2] = "Day";
@@ -336,7 +333,6 @@ public class AddReminderActivity extends AppCompatActivity implements
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Enter Number");
 
-        // Create EditText box to input repeat number
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         alert.setView(input);
@@ -358,7 +354,7 @@ public class AddReminderActivity extends AppCompatActivity implements
                 });
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                // do nothing
+
             }
         });
         alert.show();
@@ -372,10 +368,7 @@ public class AddReminderActivity extends AppCompatActivity implements
         return true;
     }
 
-    /**
-     * This method is called after invalidateOptionsMenu(), so that the
-     * menu can be updated (some menu items can be hidden or made visible).
-     */
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -492,7 +485,6 @@ public class AddReminderActivity extends AppCompatActivity implements
         if (mCurrentReminderUri != null) {
 
             int rowsDeleted = getContentResolver().delete(mCurrentReminderUri, null, null);
-
             new AlarmScheduler().cancelAlarm(getApplicationContext(), mCurrentReminderUri);
 
 
@@ -513,15 +505,7 @@ public class AddReminderActivity extends AppCompatActivity implements
 
     public void saveReminder(){
 
-     /*   if (mCurrentReminderUri == null ) {
-            // Since no fields were modified, we can return early without creating a new reminder.
-            // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
-        }
-*/
-
         ContentValues values = new ContentValues();
-
         values.put(AlarmReminderContract.AlarmReminderEntry.KEY_TITLE, mTitle);
         values.put(AlarmReminderContract.AlarmReminderEntry.KEY_DATE, mDate);
         values.put(AlarmReminderContract.AlarmReminderEntry.KEY_TIME, mTime);
@@ -555,17 +539,13 @@ public class AddReminderActivity extends AppCompatActivity implements
         }
 
         if (mCurrentReminderUri == null) {
-            // This is a NEW reminder, so insert a new reminder into the provider,
-            // returning the content URI for the new reminder.
+
             Uri newUri = getContentResolver().insert(AlarmReminderContract.AlarmReminderEntry.CONTENT_URI, values);
 
-            // Show a toast message depending on whether or not the insertion was successful.
             if (newUri == null) {
-                // If the new content URI is null, then there was an error with insertion.
                 Toast.makeText(this, "Error saving",
                         Toast.LENGTH_SHORT).show();
             } else {
-                // Otherwise, the insertion was successful and we can display a toast.
                 Toast.makeText(this, "Reminder saved",
                         Toast.LENGTH_SHORT).show();
             }
@@ -573,19 +553,18 @@ public class AddReminderActivity extends AppCompatActivity implements
 
             int rowsAffected = getContentResolver().update(mCurrentReminderUri, values, null, null);
 
-            // Show a toast message depending on whether or not the update was successful.
             if (rowsAffected == 0) {
-                // If no rows were affected, then there was an error with the update.
+
                 Toast.makeText(this, "Error updating",
                         Toast.LENGTH_SHORT).show();
             } else {
-                // Otherwise, the update was successful and we can display a toast.
+
                 Toast.makeText(this, "Updated",
                         Toast.LENGTH_SHORT).show();
             }
         }
 
-        // Create a new notification
+
         if (mActive.equals("true")) {
             if (mRepeat.equals("true")) {
                 new AlarmScheduler().setRepeatAlarm(getApplicationContext(), selectedTimestamp, mCurrentReminderUri, mRepeatTime);
@@ -597,12 +576,12 @@ public class AddReminderActivity extends AppCompatActivity implements
                     Toast.LENGTH_LONG).show();
         }
 
-        // Create toast to confirm new reminder
+
         Toast.makeText(getApplicationContext(), "Saved",
                 Toast.LENGTH_SHORT).show();
 
     }
-    // On pressing the back button
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

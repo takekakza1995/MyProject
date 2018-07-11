@@ -73,7 +73,8 @@ public class AlarmCursorAdapter extends CursorAdapter {
         if (active != null){
             setActiveImage(active);
         }else{
-            mActiveImage.setImageResource(R.drawable.ic_baseline_notifications_off_24px);
+            //mActiveImage.setImageResource(R.drawable.ic_baseline_notifications_off_24px);
+            mActiveImage.setVisibility(View.GONE);
         }
 
 
@@ -94,7 +95,6 @@ public class AlarmCursorAdapter extends CursorAdapter {
 
         int color = mColorGenerator.getRandomColor();
 
-        // Create a circular icon consisting of  a random background colour and first letter of title
         mDrawableBuilder = TextDrawable.builder()
                 .buildRound(letter, color);
         mThumbnailImage.setImageDrawable(mDrawableBuilder);
@@ -117,9 +117,11 @@ public class AlarmCursorAdapter extends CursorAdapter {
     // Set active image as on or off
     public void setActiveImage(String active){
         if(active.equals("true")){
-            mActiveImage.setImageResource(R.drawable.ic_baseline_notifications_none_24px);
+
+            mActiveImage.setVisibility(View.INVISIBLE);
         }else if (active.equals("false")) {
-            mActiveImage.setImageResource(R.drawable.ic_baseline_notifications_off_24px);
+
+            mActiveImage.setVisibility(View.INVISIBLE);
         }
 
     }

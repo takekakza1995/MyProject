@@ -64,7 +64,6 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
-        android:src="@drawable/ic_baseline_notifications_off_24px"
         android:layout_centerVertical="true"
         android:id="@+id/active_image"
         />
