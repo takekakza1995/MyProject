@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity
     FirebaseMessaging messaging = FirebaseMessaging.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -170,15 +172,7 @@ public class MainActivity extends AppCompatActivity
         });
         /*******Click********/
 
-        Button oren = (Button) findViewById(R.id.orenBtn);
 
-        oren.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,RotationActivity.class);
-                startActivity(intent);
-            }
-        });
 
 
         getNotificationData();
@@ -272,6 +266,7 @@ getDailyTask();
                             });
 
                             /*******daily********/
+
                             /*********get**********/
                             statisticUD.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -611,9 +606,9 @@ getDailyTask();
     }
 
     private void getDailyTask(){
-        calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
-        final String currentDate = dateFormat.format(calendar.getTime());
+
+
+
 
 
         sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
@@ -622,39 +617,65 @@ getDailyTask();
         final CollectionReference daily = db.collection("dailyTask");
         final DocumentReference dailyUpdate = db.collection("dailyTask").document(mail1);
 
-        daily.addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+        dailyUpdate.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                String TAG = "CheckData";
-                if (e != null) {
-                    Log.w(TAG, "Listen error", e);
-                    return;
-                }
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    calendar = Calendar.getInstance();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+                    String currentDate = dateFormat.format(calendar.getTime());
 
-                for (DocumentChange change : querySnapshot.getDocumentChanges()) {
-                    if (change.getType() == DocumentChange.Type.ADDED) {
-                        Log.d(TAG, String.valueOf(change.getDocument().getData()));
+                    DocumentSnapshot document = task.getResult();
+
+                    String serverDate = String.valueOf(document.getData().get("currentDate"));
+
+                    if (currentDate.equals(serverDate)){
+
+
+
+                        String waterTask = String.valueOf(document.getData().get("waterTask"));
+                        waterDaily.setText(waterTask);
+                        String eyeTask = String.valueOf(document.getData().get("eyeTask"));
+                        eyeDaily.setText(eyeTask);
+                        String posTask = String.valueOf(document.getData().get("posTask"));
+                        posDaily.setText(posTask);
+
+
+                        Log.d("TESTDAILY",waterTask +"||" + eyeTask + "||" +posTask);
+                    }else if(currentDate != serverDate){
+                        waterDaily.setText("0");
+                        eyeDaily.setText("0");
+                        posDaily.setText("0");
+                        dailyUpdate.update("currentDate",currentDate);
+                        dailyUpdate.update("waterTask","0");
+                        dailyUpdate.update("eyeTask","0");
+                        dailyUpdate.update("posTask","0");
+
+
+
                     }
-
-                    String source = querySnapshot.getMetadata().isFromCache() ?
-                            "local cache" : "server";
-                    Log.d(TAG, "Data fetched from " + source);
                 }
-
             }
         });
-
-
+/*
         daily.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
+                    calendar = Calendar.getInstance();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+                    String currentDate = dateFormat.format(calendar.getTime());
+
                     for (QueryDocumentSnapshot document : task.getResult()) {
                        String serverDate = String.valueOf(document.getData().get("currentDate"));
-                       Log.d("CheckDate",currentDate +"||||||||||" +serverDate);
+
+                        Log.d("CheckDate",currentDate +"||||||||||" +serverDate);
 
                        if (currentDate.equals(serverDate)){
+
+
+
                            String waterTask = String.valueOf(document.getData().get("waterTask"));
                            waterDaily.setText(waterTask);
                            String eyeTask = String.valueOf(document.getData().get("eyeTask"));
@@ -662,6 +683,8 @@ getDailyTask();
                            String posTask = String.valueOf(document.getData().get("posTask"));
                            posDaily.setText(posTask);
 
+
+                           Log.d("TESTDAILY",waterTask +"||" + eyeTask + "||" +posTask);
                        }else if(currentDate != serverDate){
                             waterDaily.setText("0");
                             eyeDaily.setText("0");
@@ -671,11 +694,15 @@ getDailyTask();
                             dailyUpdate.update("eyeTask","0");
                             dailyUpdate.update("posTask","0");
 
+
+
+
+
                         }
                     }
                 }
             }
-        });
+        });*/
     }
 
 

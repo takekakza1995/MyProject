@@ -223,18 +223,6 @@
         app:layout_constraintGuide_percent="0.2" />
 
     <ImageView
-        android:id="@+id/google_sh"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/twitt_sh"
-        app:layout_constraintStart_toStartOf="@+id/fb_share"
-        app:layout_constraintTop_toBottomOf="@+id/fb_share"
-        app:srcCompat="@drawable/google_plus" />
-
-    <ImageView
         android:id="@+id/twitt_sh"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -243,15 +231,6 @@
         app:layout_constraintEnd_toEndOf="@+id/fb_share"
         app:layout_constraintTop_toBottomOf="@+id/fb_share"
         app:srcCompat="@drawable/twitter" />
-
-    <com.facebook.share.widget.ShareButton
-        android:id="@+id/fb_share_fix"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -64,6 +64,7 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,14 +96,17 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        constraintLayout = (ConstraintLayout) findViewById(R.id.login_layer);
+       /* constraintLayout = (ConstraintLayout) findViewById(R.id.login_layer);
         animationDrawable = (AnimationDrawable) constraintLayout.getBackground();
         animationDrawable.setEnterFadeDuration(2000);
         animationDrawable.setExitFadeDuration(2000);
         animationDrawable.start();
-
+*/
          mAuth = FirebaseAuth.getInstance();
 
+        Calendar calender = Calendar.getInstance();
+        final int currentWeek = calender.get(Calendar.WEEK_OF_YEAR);
+        Log.d("THISWEEK55555",String.valueOf(currentWeek));
 
          callbackManager = CallbackManager.Factory.create();
          loginButton = (LoginButton) findViewById(R.id.loginBtn);
@@ -340,7 +344,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("pic",photoUri.toString());
                             editor.commit();*/
 
-                            pushData();
+
 
 
                         } else {

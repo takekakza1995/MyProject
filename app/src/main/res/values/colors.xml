@@ -11,5 +11,8 @@
     <color name="textForRed">#ffffff</color>
     <color name="splash">#56a731</color>
     <color name="yellowB">#DCDB1E</color>
-
+    <color name="transparent_black">#80000000</color>
+    <color name="water_main_task">#54DEFD</color>
+    <color name="light_main_task">#40ABFC</color>
+    <color name="pos_main_task">#00BD9D</color>
 </resources>

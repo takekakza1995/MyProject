@@ -251,15 +251,16 @@ public class ReminderActivityV2 extends AppCompatActivity
     }
 
     private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // ...
-                        mGoogleSignInClient.revokeAccess();
-                    }
-                });
-
+        if (mGoogleSignInClient != null) {
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // ...
+                            mGoogleSignInClient.revokeAccess();
+                        }
+                    });
+        }
 
     }
 

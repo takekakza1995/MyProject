@@ -60,6 +60,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -74,6 +75,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
@@ -135,7 +137,7 @@ public class Plant extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        Twitter.initialize(this);
         setContentView(R.layout.activity_plant);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -174,7 +176,7 @@ public class Plant extends AppCompatActivity
         effect_pic = (ImageView) findViewById(R.id.effectGif) ;
         sun_effect = (ImageView)  findViewById(R.id.sun_effect);
         fer_effect = (ImageView) findViewById(R.id.fer_effect);
-        google_sh = (ImageView) findViewById(R.id.google_sh);
+
         twitt_sh = (ImageView) findViewById(R.id.twitt_sh);
 
 
@@ -213,39 +215,7 @@ public class Plant extends AppCompatActivity
             }
         });
 
-        //google_sh.setVisibility(View.GONE);
-        google_sh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                if (picCheck == 1){
-
-                    uri = Uri.parse("android.resource://"+getPackageName()+"/drawable/bg_tree01");
-
-                }else if (picCheck == 2){
-
-                    uri = Uri.parse("android.resource://"+getPackageName()+"/drawable/bg_tree02");
-
-                }else if (picCheck ==3){
-
-                    uri = Uri.parse("android.resource://"+getPackageName()+"/drawable/bg_tree03");
-
-                }else if (picCheck == 4){
-
-                    uri = Uri.parse("android.resource://"+getPackageName()+"/drawable/bg_tree04");
-
-                }
-
-                Intent shareIntent = ShareCompat.IntentBuilder
-                        .from(Plant.this)
-                        .setText("")
-                        .setType("image/jpeg").setStream(uri).getIntent()
-                        .setPackage("com.example.takethraithip.myproject");
-
-                startActivityForResult(shareIntent,REQ_START_SHARE);
-
-            }
-        });
 
 
 
@@ -757,6 +727,9 @@ public class Plant extends AppCompatActivity
                 startActivity(settingIntent);
                 break;*/
             case R.id.nav_logout:
+
+
+
                 TwitterCore.getInstance().getSessionManager().clearActiveSession();
 
                 FirebaseAuth.getInstance().signOut();
@@ -785,15 +758,16 @@ public class Plant extends AppCompatActivity
     }
 
     private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // ...
-                        mGoogleSignInClient.revokeAccess();
-                    }
-                });
-
+        if (mGoogleSignInClient != null) {
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // ...
+                            mGoogleSignInClient.revokeAccess();
+                        }
+                    });
+        }
 
     }
 }

@@ -521,9 +521,84 @@ public class Statistic extends AppCompatActivity
         final String mail1 = sharedPreferences.getString("email","not found");
 
         final CollectionReference daily = db.collection("dailyTask");
-        final DocumentReference dailyUpdate = db.collection("dailyTask").document(mail1);
+        final DocumentReference weeklyPie = db.collection("weeklyChart").document(mail1);
 
 
+        /****/
+        weeklyPie.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+
+                        String waterTask = String.valueOf(document.getData().get("water1"));
+
+                        String eyeTask = String.valueOf(document.getData().get("light1"));
+                        float wPieValue = Integer.parseInt(waterTask);
+                        float moreW = 56 - wPieValue;
+                        float ePieValue = Integer.parseInt(eyeTask) ;
+                        float moreE = 28- ePieValue;
+
+                    waterPie = (PieChart) findViewById(R.id.waterPie);
+                    ArrayList<Entry> piewEntry = new ArrayList<>();
+                    ArrayList<String> labelPie = new ArrayList<>();
+                    if (moreW ==0 ){
+                        piewEntry.add(new Entry(wPieValue,0));
+                        labelPie.add("Success");
+                    }else if (moreW != 0){
+                        piewEntry.add(new Entry(wPieValue,0));
+                        piewEntry.add(new Entry(moreW,1));
+                        labelPie.add("You");
+                        labelPie.add("More");
+                    }
+
+
+                    PieDataSet pieDataSet = new PieDataSet(piewEntry,"");
+                    pieDataSet.setValueTextSize(16);
+                    pieDataSet.setValueTextColor(Color.WHITE);
+                    pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+
+
+
+
+                    PieData data = new PieData(labelPie, pieDataSet);
+                    waterPie.setData(data);
+                    waterPie.setDescription("");
+
+                    waterPie.animateY(2000);
+
+
+                    lightPie = (PieChart) findViewById(R.id.lightPie);
+                    ArrayList<Entry> lightEntry = new ArrayList<>();
+                    ArrayList<String> labelPieLight = new ArrayList<>();
+                    if (moreE ==0){
+                        lightEntry.add(new Entry(ePieValue,0));
+                        labelPieLight.add("Success");
+                    }else if (moreE != 0){
+                        lightEntry.add(new Entry(ePieValue,0));
+                        lightEntry.add(new Entry(moreE,1));
+                        labelPieLight.add("You");
+                        labelPieLight.add("More");
+                    }
+
+                    // lightEntry.add(new Entry(ePieValue,0));
+                    // lightEntry.add(new Entry(moreE,1));
+                    PieDataSet LightpieDataSet = new PieDataSet(lightEntry,"");
+                    LightpieDataSet.setValueTextSize(16);
+                    //LightpieDataSet.setValueTextColor(Color.WHITE);
+                    LightpieDataSet.setColors(ColorTemplate.LIBERTY_COLORS);
+
+
+
+
+                    PieData dataLight = new PieData(labelPieLight, LightpieDataSet);
+                    lightPie.setData(dataLight);
+                    lightPie.setDescription("");
+                    lightPie.animateY(2000);
+                }
+            }
+        });
+        /****/
 
         daily.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -548,7 +623,7 @@ public class Statistic extends AppCompatActivity
         });
 
 
-
+/*
         daily.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -588,6 +663,7 @@ public class Statistic extends AppCompatActivity
                         PieData data = new PieData(labelPie, pieDataSet);
                         waterPie.setData(data);
                         waterPie.setDescription("");
+
                         waterPie.animateY(2000);
 
 
@@ -620,7 +696,7 @@ public class Statistic extends AppCompatActivity
                     }
                 }
             }
-        });
+        });*/
 
         daily.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -684,16 +760,18 @@ public class Statistic extends AppCompatActivity
 
         BarDataSet barWaterSet = new BarDataSet(waterBar,"Water");
         barWaterSet.setColor(Color.rgb(110,235,255));
+        barWaterSet.setValueTextSize(12);
 
         BarDataSet barLightSet = new BarDataSet(lightBar,"Light");
         barLightSet.setColor(Color.rgb(255,255,100));
+        barLightSet.setValueTextSize(12);
 
         ArrayList<BarDataSet> dataSets = new ArrayList<>();
         dataSets.add(barWaterSet);
         dataSets.add(barLightSet);
 
         BarData barData = new BarData(label,dataSets);
-
+        barChart.setDescription("");
         barChart.animateY(2000);
         barChart.setData(barData);
         barChart.getData().setHighlightEnabled(false);
@@ -704,7 +782,7 @@ public class Statistic extends AppCompatActivity
             @Override
             public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
                 //entrt index//datasetindex
-                barChart.setVisibility(View.GONE);
+                barChart.setVisibility(View.INVISIBLE);
                 int indexCheck = e.getXIndex();
                 //int dataSetIn = dataSetIndex;
 
@@ -776,7 +854,7 @@ public class Statistic extends AppCompatActivity
             public void onClick(View view) {
 
                 dailyChart.clearValues();
-                dailyChart.setVisibility(View.GONE);
+                dailyChart.setVisibility(View.INVISIBLE);
                 barChart.setVisibility(View.VISIBLE);
                 barChart.animateY(2000);
             }
@@ -844,6 +922,7 @@ public class Statistic extends AppCompatActivity
             BarData dailyData = new BarData(dailylabel,dailyDataset);
             dailyChart.animateY(2000);
             dailyChart.setData(dailyData);
+            dailyChart.setDescription("");
             dailyChart.getData().setHighlightEnabled(false);
 
         }else if (type ==2 ){
@@ -853,6 +932,7 @@ public class Statistic extends AppCompatActivity
             BarData dailyData = new BarData(dailylabel,dailyDataset);
             dailyChart.animateY(2000);
             dailyChart.setData(dailyData);
+            dailyChart.setDescription("");
             dailyChart.getData().setHighlightEnabled(false);
         }
 
@@ -1343,15 +1423,16 @@ public class Statistic extends AppCompatActivity
     }
 
     private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // ...
-                        mGoogleSignInClient.revokeAccess();
-                    }
-                });
-
+        if (mGoogleSignInClient != null) {
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // ...
+                            mGoogleSignInClient.revokeAccess();
+                        }
+                    });
+        }
 
     }
 }

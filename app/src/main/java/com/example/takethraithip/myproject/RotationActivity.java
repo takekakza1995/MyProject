@@ -3,95 +3,123 @@ package com.example.takethraithip.myproject;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RotationActivity extends AppCompatActivity implements SensorEventListener{
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-    private SensorManager mSensorManager;
-    private Sensor mRotationSensor;
-    private  Sensor mPressure;
-    TextView xValue;
-    TextView yValue;
-    TextView zValue;
-    TextView airTemp;
-    private ScreenStateReciever mReceiver;
-    private static final int SENSOR_DELAY = 500 * 1000; // 500ms
-    private static final int FROM_RADS_TO_DEGS = 57;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-    Button rotationBack;
+public class RotationActivity extends AppCompatActivity {
 
+    EditText dateName,dayofyear,month,notiType,week,year,docName;
+    String getdateName,getdayofyear,getmonth,getnotiType,getweek,getyear,getdocName;
+    Button addCF;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rotation);
 
-        xValue = (TextView) findViewById(R.id.pitch);
-        yValue = (TextView) findViewById(R.id.roll);
-        zValue = (TextView) findViewById(R.id.zAxis);
-        rotationBack = (Button) findViewById(R.id.backRotation) ;
 
+        dateName = (EditText) findViewById(R.id.dateNameTxt);
+        dayofyear = (EditText) findViewById(R.id.doyTxt);
+        month = (EditText) findViewById(R.id.monthTxt);
+        notiType = (EditText) findViewById(R.id.notiTypeTxt);
+        week = (EditText) findViewById(R.id.weekTxt);
+        year = (EditText) findViewById(R.id.yearTxt);
+        docName = (EditText) findViewById(R.id.docNameTxt);
 
+        addCF = (Button) findViewById(R.id.addCFbtn);
 
-        mSensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
-        mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this, mRotationSensor, SENSOR_DELAY);
+        sharedPreferences = getSharedPreferences("userInfo",MODE_PRIVATE);
+        final String mail1 = sharedPreferences.getString("email","not found");
 
-        rotationBack.setOnClickListener(new View.OnClickListener() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");// for Doc name
+        final String strDate = mdformat.format(calendar.getTime()); // for Doc name
+
+        docName.setText(strDate);
+        year.setText("2018");
+        dayofyear.setText("111");
+        dateName.setText("Sunday");
+        notiType.setText("1");
+        week.setText("29");
+        month.setText("7");
+        /************************/
+        addCF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mSensorManager.unregisterListener(RotationActivity.this,mRotationSensor);
-                Intent intent = new Intent(RotationActivity.this,MainActivity.class);
-                startActivity(intent);
-                finish();
+              getdateName = String.valueOf(dateName.getText());
+              getdayofyear = String.valueOf(dayofyear.getText());
+              final int doy = Integer.parseInt(getdayofyear);
+
+              getmonth = String.valueOf(month.getText());
+              final int monthi = Integer.parseInt(getmonth);
+
+              getnotiType = String.valueOf(notiType.getText());
+
+              getweek = String.valueOf(week.getText());
+              final int weeki = Integer.parseInt(getweek);
+
+              getyear = String.valueOf(year.getText());
+              final int yeari = Integer.parseInt(getyear);
+              getdocName = String.valueOf(docName.getText());
+
+                final CollectionReference userRef = db.collection("users").document(mail1).collection("notiResult");
+
+
+                Log.d("TESTCFADD",getdateName + "\n" +getdayofyear +"\n" + getmonth + "\n" +getnotiType +"\n"
+                + getweek +"\n" + getyear +"\n" + getdocName);
+                userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            Map<String,Object> userData = new HashMap<>();
+                            userData.put("notiType", String.valueOf(getnotiType));
+                            userData.put("week",weeki);
+                            userData.put("year",yeari);
+                            userData.put("month",monthi);
+                            userData.put("dayofyear",doy);
+                            userData.put("dateName",getdateName);
+                            userRef.document(getdocName).set(userData);
+
+                            reload();
+                        }
+                    }
+                });
 
             }
         });
-
-        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        mReceiver = new ScreenStateReciever();
-        registerReceiver(mReceiver, intentFilter);
-
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiver != null) {
-            unregisterReceiver(mReceiver);
-        }
+    private void reload() {
+        Intent intent = new Intent(RotationActivity.this,RotationActivity.class);
+        startActivity(intent);
+        finish();
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == mRotationSensor) {
-                xValue.setText("xValue" + event.values[0]);
-                yValue.setText("yValue" + event.values[1]);
-                zValue.setText("zValue" + event.values[2]);
-
-                if (event.values[0] > 0.5 || event.values[0] < 0.5
-                        && event.values[1] > 0.5 || event.values[1] < 0.5
-                        && event.values[2] > 10.0 || event.values[2] < 9.5){
-                    //Toast.makeText(this,"Rotation Change",Toast.LENGTH_SHORT).show();
-                }
-
-        }
-
-    }
 
 }
